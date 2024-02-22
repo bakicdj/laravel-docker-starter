@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  nginx:
+    container_name: appname-nginx
+    image: nginx:alpine
+    volumes:
+      - ./app:/webroot
+      - ./logs/nginx/:/var/log/nginx
+      - ./docker/nginx/site.conf:/etc/nginx/conf.d/site.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - php
+    networks:
+      - appname-net
+
+  php:
+    container_name: appname-php
+    build:
+      context: ./docker/php
+      args:
+        uid: 1000
+        username: php
+        password: 123
+        root_password: 123
+    volumes:
+      - ./app:/webroot
+      - ./docker/php/zshrc.tpl:/home/php/.zshrc
+    networks:
+      - appname-net
+
+  devdb:
+    container_name: appname-devdb
+    image: mysql:8.3
+    volumes:
+      - appname-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: dev
+      MYSQL_DATABASE: dev
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dev
+    networks:
+      - appname-net
+
+  testdb:
+    container_name: appname-testdb
+    image: mysql:8.3
+    volumes:
+      - appname-mysqltest-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+    networks:
+      - appname-net
+
+  redis:
+    container_name: appname-redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - appname-redis-data:/data
+    networks:
+      - appname-net
+
+volumes:
+  appname-mysql-data:
+  appname-mysqltest-data:
+  appname-redis-data:
+
+networks:
+  appname-net:
