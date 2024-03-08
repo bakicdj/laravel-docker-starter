@@ -38,5 +38,5 @@ RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -
 COPY php.ini /usr/local/etc/php/php.ini
 
 # Set the working directory
-WORKDIR /webroot/app
+WORKDIR /webroot
 
